@@ -1,1 +1,1 @@
-TRANSACTIONS ||= []
+TRANSACOES ||= []
