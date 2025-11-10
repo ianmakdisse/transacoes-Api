@@ -1,24 +1,19 @@
 class TransacoesController < ApplicationController
   def create
-    valor = transacao_params[:valor].to_f
-    data_hora = DateTime.iso8601(transacao_params[:dataHora]) rescue nil
-
-
-    unless TransacaoService.validate(valor, data_hora)
-      return render_unprocessable_entity
-    end
-
-    TRANSACTIONS << { valor: valor, dataHora: data_hora }
-    puts "=== TRANSACTIONS APÓS ADICIONAR ==="
-    p TRANSACTIONS # Exibe no log
-
-    render status: :created, json: {}
+    transacao = TransacaoService.create!(transacao_params)
+    TransacaoStore.add(transacao)
+    EstatisticasService.invalidate_cache!
+    head :created
+  rescue TransacaoService::InvalidParamsError => e
+    render json: { error: e.message }, status: :bad_request
+  rescue TransacaoService::UnprocessableError => e
+    render json: { error: e.message }, status: :unprocessable_entity
   end
 
-
   def destroy
-    TRANSACTIONS.clear
-    render status: :ok, json: {}
+    TransacaoStore.clear
+    EstatisticasService.invalidate_cache!
+    head :ok
   end
 
   private

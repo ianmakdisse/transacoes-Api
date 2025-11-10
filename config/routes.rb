@@ -3,5 +3,5 @@ Rails.application.routes.draw do
   resources :transacoes, only: [:create, :destroy]
 
   # Rota para exibir estatísticas
-  get 'estatistica', to: 'estatisticas#show'
+  get 'estatisticas', to: 'estatisticas#show'
 end
